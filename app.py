@@ -38,12 +38,12 @@ def create_item():
         description = data.get('description')
         
         new_item = Item(name=name, description=description) # type: ignore
-        
+ 
         # Обработка загрузки файла
         if 'image' in request.files:
             file = request.files['image']
             if file.filename != '':
-                filename = f"item_{new_item.id}_{file.filename}"
+                filename = f"item_{file.filename}"
                 upload_to_yandex_cloud(file, filename)
                 new_item.image_filename = filename
         
@@ -93,7 +93,7 @@ def update_item(item_id):
                     delete_from_yandex_cloud(item.image_filename)
                 
                 # Загрузка нового
-                filename = f"item_{item_id}_{file.filename}"
+                filename = f"item_{file.filename}"
                 upload_to_yandex_cloud(file, filename)
                 item.image_filename = filename
         
