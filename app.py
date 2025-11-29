@@ -1,3 +1,4 @@
+import time
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
@@ -125,10 +126,20 @@ def delete_item(item_id):
 
 if __name__ == '__main__':
     with app.app_context():
-        try:
-            db.create_all()
-            print("Таблицы базы данных успешно созданы")
-        except Exception as e:
-            print(f"Ошибка при создании таблиц: {e}")
+        max_retries = 5
+        retry_delay = 5  # seconds
+        
+        for attempt in range(max_retries):
+            try:
+                db.create_all()
+                print("Таблицы базы данных успешно созданы")
+                break
+            except Exception as e:
+                print(f"Попытка {attempt + 1}/{max_retries}: Ошибка при создании таблиц: {e}")
+                if attempt < max_retries - 1:
+                    print(f"Повторная попытка через {retry_delay} секунд...")
+                    time.sleep(retry_delay)
+                else:
+                    print("Не удалось подключиться к базе данных после всех попыток")
     
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)  # debug=False для production
